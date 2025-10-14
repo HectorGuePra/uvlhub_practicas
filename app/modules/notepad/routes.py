@@ -8,6 +8,18 @@ from app.modules.notepad.services import NotepadService
 notepad_service = NotepadService()
 
 '''
+READ ALL
+'''
+@notepad_bp.route('/notepad', methods=['GET'])
+@login_required
+def index():
+    form = NotepadForm()
+    notepads = notepad_service.get_all_by_user(current_user.id)
+    return render_template('notepad/index.html', notepads=notepads, form=form)
+
+
+
+'''
 CREATE
 '''
 @notepad_bp.route('/notepad/create', methods=['GET', 'POST'])
@@ -88,14 +100,3 @@ def delete_notepad(notepad_id):
         flash('Error deleting notepad', 'error')
     
     return redirect(url_for('notepad.index'))
-
-
-
-
-@notepad_bp.route('/notepad', methods=['GET'])
-@login_required
-def index():
-    form = NotepadForm()
-    notepads = notepad_service.get_all_by_user(current_user.id)
-    return render_template('notepad/index.html', notepads=notepads, form=form)
-
