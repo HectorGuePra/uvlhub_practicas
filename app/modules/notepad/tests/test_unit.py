@@ -241,7 +241,29 @@ def test_delete_notepad_error(test_client):
     login_response = login(test_client, "test@example.com", "test1234")
     assert login_response.status_code == 200
     response = test_client.post(
-        "/notepad/delete/999999",  # ID que no existe
+        "/notepad/delete/999999",  
         follow_redirects=False
     )
     assert response.status_code == 404
+
+#===================== MODEL =========================
+
+def test_notepad_repr(test_client):
+    login_response = login(test_client, "test@example.com", "test1234")
+    assert login_response.status_code == 200
+
+    test_client.post(
+        "/notepad/create",
+        data={"title": "Repr Test", "body": "Probando __repr__"},
+        follow_redirects=True
+    )
+
+    with test_client.application.app_context():
+        notepad = Notepad.query.filter_by(title="Repr Test").first()
+        assert notepad is not None
+
+        if not hasattr(notepad.user, "username"):
+            notepad.user.username = notepad.user.email
+
+        repr_str = repr(notepad)
+        assert f"Notepad<{notepad.id}, Title=Repr Test" in repr_str
